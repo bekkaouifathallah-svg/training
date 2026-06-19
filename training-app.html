@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Training">
+<title>Training</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0A0A0A;--bg2:#111;--bg3:#181818;--bd:#1E1E1E;
+  --tx:#F0EDE6;--tx2:#888;--tx3:#444;
+  --gold:#D4A843;--green:#10B981;--red:#EF4444;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,sans-serif;overflow:hidden}
+#root{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto}
+
+/* HEADER */
+#hdr{background:var(--bg);padding:calc(var(--safe-top)+10px) 16px 0;border-bottom:1px solid var(--bd);flex-shrink:0}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.hdr-sub{font-size:10px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-bottom:2px}
+.hdr-name{font-size:17px;font-weight:800;letter-spacing:-0.5px}
+.wbadge{border-radius:10px;padding:4px 10px;text-align:center;border:1px solid}
+.wbadge .wn{font-size:16px;font-weight:900;line-height:1}
+.wbadge .wl{font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.7}
+.save-ind{font-size:10px;min-height:13px;margin-top:2px;text-align:right}
+
+/* NAV */
+.nav-row{display:flex;gap:6px;padding:6px 0;overflow-x:auto;scrollbar-width:none}
+.nav-row::-webkit-scrollbar{display:none}
+.ntab{flex:0 0 auto;padding:5px 14px;border-radius:20px;border:none;font-weight:700;font-size:11px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+
+/* WEEK TABS */
+.wtabs{display:flex;gap:4px;padding:5px 0 8px;overflow-x:auto;scrollbar-width:none}
+.wtabs::-webkit-scrollbar{display:none}
+.wtab{flex:0 0 auto;padding:4px 12px;border-radius:7px;border:none;font-weight:700;font-size:12px;cursor:pointer}
+
+/* PROGRESS */
+.prog{padding:3px 0 8px}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px}
+.prog-track{height:3px;background:var(--bd);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* DAY TABS */
+#dtabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg)}
+.dtab{flex:1;padding:9px 4px;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent}
+.dtab .dl{font-size:10px;font-weight:800;letter-spacing:1.5px}
+.dtab .dc{font-size:9px;color:var(--tx3);margin-top:2px}
+
+/* SCROLL */
+#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px;padding-bottom:calc(var(--safe-bot)+16px)}
+
+/* CARDS */
+.card{background:var(--bg2);border-radius:14px;margin-bottom:10px;border:1px solid var(--bd);overflow:hidden}
+
+/* COLLAPSIBLE */
+.coll-hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;user-select:none}
+.coll-hdr:active{opacity:.8}
+.coll-left{display:flex;align-items:center;gap:10px}
+.coll-icon{font-size:18px}
+.coll-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.coll-sub{font-size:11px;color:var(--tx2);margin-top:2px}
+.coll-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.coll-pill{font-size:10px;border-radius:4px;padding:3px 8px;font-weight:700}
+.chev{font-size:12px;color:var(--tx3);transition:transform .2s}
+.coll-body{border-top:1px solid var(--bd);padding:12px 14px;display:none}
+.coll-body.open{display:block}
+
+/* ROW inside coll */
+.row{padding:7px 0;border-bottom:1px solid #141414}
+.row:last-child{border-bottom:none}
+.row-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.row-name{font-size:12px;color:#DDD;font-weight:600;line-height:1.3}
+.row-detail{font-size:11px;font-weight:700;flex-shrink:0}
+.row-note{font-size:11px;color:#555;margin-top:3px;line-height:1.4}
+
+/* SESSION HEADER */
+.sess-hdr{background:var(--bg2);border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--bd)}
+.sess-eye{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px}
+.sess-obj{font-size:13px;color:var(--tx2);line-height:1.5;margin-top:4px}
+.sess-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.sess-meta span{font-size:10px;color:var(--tx3);background:var(--bg3);border-radius:5px;padding:3px 8px}
+
+/* EX CARD */
+.ex-card{background:var(--bg2);border-radius:14px;margin-bottom:8px;border:1px solid var(--bd);overflow:hidden}
+.ex-card.s-done{border-color:rgba(16,185,129,.25)}
+.ex-card.s-partial{border-color:rgba(212,168,67,.25)}
+.ex-card.s-missed{border-color:rgba(239,68,68,.25)}
+.ex-card.s-test{border-color:rgba(239,68,68,.35)}
+.ex-hdr{padding:12px 14px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;user-select:none}
+.ex-hdr:active{opacity:.8}
+.ex-main{flex:1}
+.ex-name{font-size:13px;font-weight:700;line-height:1.3;margin-bottom:7px}
+.badges{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.b{font-size:11px;border-radius:5px;padding:2px 8px;font-weight:700}
+.b-det{background:rgba(212,168,67,.12);color:var(--gold)}
+.b-chg{background:var(--bg3);color:var(--tx2)}
+.b-r1{background:rgba(16,185,129,.12);color:#10B981;border:1px solid rgba(16,185,129,.2)}
+.b-r2{background:rgba(99,102,241,.12);color:#6366F1;border:1px solid rgba(99,102,241,.2)}
+.b-r3{background:rgba(212,168,67,.12);color:var(--gold);border:1px solid rgba(212,168,67,.2)}
+.b-r4{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.b-done{background:rgba(212,168,67,.1);color:var(--gold);border:1px solid rgba(212,168,67,.25)}
+.ex-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.sp{font-size:10px;font-weight:700;border-radius:5px;padding:2px 8px;border:1px solid}
+.sp-done{background:rgba(16,185,129,.12);color:#10B981;border-color:rgba(16,185,129,.3)}
+.sp-partial{background:rgba(212,168,67,.12);color:var(--gold);border-color:rgba(212,168,67,.3)}
+.sp-missed{background:rgba(239,68,68,.12);color:var(--red);border-color:rgba(239,68,68,.3)}
+.sp-empty{font-size:10px;color:var(--tx3)}
+
+/* EX BODY */
+.ex-body{border-top:1px solid var(--bd);padding:12px 14px;display:none}
+.ex-body.open{display:block}
+.coach-note{background:var(--bg);border-radius:7px;padding:8px 10px;font-size:11px;color:#666;margin-bottom:12px;border-left:2px solid;line-height:1.6}
+.inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.inp-g label{font-size:9px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;display:block;margin-bottom:4px}
+.inp-g input,.inp-g textarea{width:100%;background:var(--bg);border:1px solid #2A2A2A;border-radius:7px;color:var(--tx);padding:8px 10px;font-size:14px;font-weight:800;font-family:inherit;outline:none;-webkit-appearance:none}
+.inp-g textarea{font-size:12px;font-weight:400;resize:none;line-height:1.5}
+.inp-full{margin-bottom:10px}
+.sbts{display:flex;gap:6px}
+.sbt{flex:1;padding:9px 4px;border-radius:8px;border:1px solid #222;background:transparent;color:#555;font-weight:700;font-size:10px;cursor:pointer;font-family:inherit;transition:all .15s}
+.sbt:active{opacity:.8}
+.sbt.ad{background:rgba(16,185,129,.15);color:#10B981;border-color:rgba(16,185,129,.4)}
+.sbt.ap{background:rgba(212,168,67,.15);color:var(--gold);border-color:rgba(212,168,67,.4)}
+.sbt.am{background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.4)}
+
+/* SESSION NOTE */
+.sess-note{background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--bd);margin-top:8px}
+.sess-note label{font-size:9px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;display:block;margin-bottom:8px}
+.sess-note textarea{width:100%;background:var(--bg);border:1px solid #2A2A2A;border-radius:8px;color:var(--tx);padding:10px 12px;font-size:12px;resize:none;font-family:inherit;line-height:1.6;outline:none;-webkit-appearance:none}
+
+/* OBJECTIFS */
+.obj-card{background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--bd);margin-top:10px}
+.obj-title{font-size:9px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-bottom:10px}
+.obj-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.obj-item{background:var(--bg);border-radius:9px;padding:10px 12px;border:1px solid var(--bd)}
+.obj-l{font-size:9px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.obj-a{font-size:20px;font-weight:900}
+.obj-t{font-size:11px;color:var(--gold);margin-top:2px}
+
+/* MOBILITE */
+.mob-bloc{background:var(--bg2);border-radius:14px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(139,92,246,.2)}
+
+/* HISTORIQUE */
+.hist-card{background:var(--bg2);border-radius:14px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--bd);cursor:pointer}
+.hist-card:active{opacity:.8}
+.hist-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.hist-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.hist-type{font-size:13px;font-weight:700}
+.hist-pct{font-size:18px;font-weight:900;line-height:1}
+.hist-sub{font-size:10px;color:var(--tx3);margin-top:1px}
+.hist-note{font-size:11px;color:#555;border-left:2px solid;padding-left:8px;margin-top:6px;line-height:1.5}
+.hist-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.hist-tag{font-size:10px;color:var(--gold);background:rgba(212,168,67,.08);border-radius:4px;padding:2px 7px}
+
+.empty{background:var(--bg2);border-radius:14px;padding:28px;text-align:center;color:var(--tx3);font-size:13px;border:1px solid var(--bd)}
+.repos{background:var(--bg2);border-radius:14px;padding:28px;text-align:center;color:var(--tx3);font-size:15px;border:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="hdr"></div>
+  <div id="dtabs"></div>
+  <div id="scroll"></div>
+</div>
+
+<script>
+// ─── DONNÉES ──────────────────────────────────────────────────────────────────
+const SW=[
+  {n:1,l:"Accumulation",r:"6-7",c:"#3B82F6"},
+  {n:2,l:"Accumulation+",r:"7",c:"#6366F1"},
+  {n:3,l:"Intensification",r:"7-8",c:"#8B5CF6"},
+  {n:4,l:"Surcharge",r:"8-9",c:"#D4A843"},
+  {n:5,l:"Décharge",r:"5-6",c:"#10B981"},
+  {n:6,l:"Test / Max",r:"9-10",c:"#EF4444"},
+];
+
+const ECHAUFF={
+  commun:[
+    {n:"Vélo / Rameur léger",d:"2 min",note:"Élévation température corporelle"},
+    {n:"CARs épaules (rotations contrôlées)",d:"5 rép/côté",note:"Lubrification articulation épaule"},
+    {n:"CARs hanches debout",d:"5 rép/côté",note:"Amplitude de hanche active"},
+    {n:"Knee-to-wall cheville",d:"8 rép/côté",note:"Dorsiflexion — prépare la réception"},
+    {n:"Hip 90/90 au sol",d:"30 sec/côté",note:"Rotation interne + externe hanche"},
+    {n:"Cat-cow + rotations thoraciques",d:"10 rép",note:"Mobilité thoracique et lombaire"},
+    {n:"Squat profond assisté (poteau)",d:"10 rép lents",note:"Prépare le pattern de réception"},
+  ],
+  lundi:[
+    {n:"Band pull-apart",d:"2×15",note:"Activation coiffe des rotateurs arrière"},
+    {n:"Face pull élastique",d:"2×12",note:"Prehab épaule — équilibre ant/post"},
+    {n:"Wall slide",d:"10 rép",note:"Activation trapèzes inférieurs"},
+  ],
+  mardi:[],
+  mercredi:[
+    {n:"Skip léger sur place",d:"30 sec",note:"Activation réflexe myotatique"},
+    {n:"Fentes dynamiques rotatives",d:"8 rép/côté",note:"Activation hanche en amplitude"},
+    {n:"Sauts légers sur place",d:"20 sec",note:"Activation raideur tendineuse"},
+  ],
+  jeudi:[
+    {n:"Band pull-apart",d:"2×15",note:"Activation coiffe des rotateurs arrière"},
+    {n:"Face pull élastique",d:"2×12",note:"Prehab épaule"},
+    {n:"Wall slide",d:"10 rép",note:"Activation trapèzes inférieurs"},
+  ],
+  vendredi:[],
+  samedi:[
+    {n:"Overhead squat à vide / bâton",d:"10 rép",note:"Pattern de réception arraché"},
+    {n:"Snatch grip deadlift léger",d:"5 rép lents",note:"Activation chaîne postérieure"},
+    {n:"Drop snatch bâton",d:"8 rép",note:"Vitesse de passage sous la barre"},
+  ],
+};
+
+const PREHAB_R=[
+  {s:1,ex:"Squat isométrique mur (chaise)",fmt:"5×30 sec",ch:"Poids du corps",note:"Pas de douleur — si douleur, arrêt immédiat"},
+  {s:2,ex:"Squat isométrique mur",fmt:"5×45 sec",ch:"Poids du corps",note:"Durée +15 sec vs S1"},
+  {s:3,ex:"Squat excentrique lent (4 sec descente)",fmt:"3×10 rép",ch:"Poids du corps",note:"Introduction excentrique"},
+  {s:4,ex:"Squat excentrique lent",fmt:"3×12 rép",ch:"+5kg",note:"Charge légère ajoutée"},
+  {s:5,ex:"Squat isométrique (décharge)",fmt:"3×30 sec",ch:"Poids du corps",note:"Décharge"},
+  {s:6,ex:"Squat excentrique léger",fmt:"2×10 rép",ch:"Poids du corps",note:"Activation avant test"},
+];
+const PREHAB_C=[
+  {n:"Rotation externe isométrique mur",d:"3×30 sec/côté",note:"Jamais douloureux — max 5/10"},
+  {n:"Rotation externe élastique (couché côté)",d:"3×12/côté",note:"Charge très légère"},
+  {n:"Face pull élastique",d:"3×15",note:"Équilibre ant/post épaule"},
+  {n:"Empty can (supra-épineux)",d:"2×12/côté",note:"Renforcement ciblé coiffe"},
+];
+const PREHAB_JOURS=["lundi","mardi","jeudi","vendredi"];
+
+const MOBILITE=[
+  {titre:"🦵 Chevilles & Genoux",duree:"10 min",c:"#3B82F6",exs:[
+    {n:"Knee-to-wall progressif",d:"3×45 sec/côté",note:"Genou dépasse les orteils de 10+ cm"},
+    {n:"Squat profond assisté avec pause",d:"3×30 sec",note:"Talon au sol — descente maximale"},
+    {n:"Mobilisation cheville (cercles)",d:"2×10 rot/côté",note:"Lubrification articulaire"},
+    {n:"Calf stretch mur (tendu + fléchi)",d:"2×45 sec/côté",note:"Soléaire + gastrocnémien"},
+  ]},
+  {titre:"🍑 Hanches",duree:"15 min",c:"#8B5CF6",exs:[
+    {n:"90/90 stretch (rot. int. + ext.)",d:"3×60 sec/côté",note:"Exercice clé — les deux rotations"},
+    {n:"Pigeon stretch au sol",d:"3×60 sec/côté",note:"Rotation externe profonde"},
+    {n:"Fente basse psoas (Couch Stretch)",d:"2×45 sec/côté",note:"Flexion de hanche et psoas"},
+    {n:"Squat cosaque latéral",d:"2×10 rép/côté",note:"Amplitude adducteurs en dynamique"},
+    {n:"Hip CARs au sol (4 pattes)",d:"5 rotations/côté",note:"Contrôle actif de l'amplitude"},
+  ]},
+  {titre:"🦴 Thoracique & Dos",duree:"10 min",c:"#6366F1",exs:[
+    {n:"Extension thoracique foam roller",d:"3×45 sec (3 positions)",note:"Déverrouillage T4-T8"},
+    {n:"Rotations thoraciques (book open)",d:"10 rép/côté",note:"Rotation active du thorax"},
+    {n:"Cat-cow profond avec pause",d:"10 rép lents",note:"Flexion/extension vertébrale complète"},
+    {n:"Bretzel stretch",d:"2×45 sec/côté",note:"Thoracique + hanche + épaule"},
+  ]},
+  {titre:"💪 Épaules & Poignets",duree:"10 min",c:"#10B981",exs:[
+    {n:"Wall slide",d:"3×10 rép",note:"Activation trapèzes + mobilité épaule"},
+    {n:"Rotation externe isométrique élastique",d:"3×30 sec/côté",note:"Prehab coiffe"},
+    {n:"Dislocates bâton / élastique",d:"2×10 rép",note:"Mobilité overhead — fondamental haltéro"},
+    {n:"Extension poignet au sol",d:"2×30 sec",note:"Préserve les poignets"},
+    {n:"Shoulder CARs",d:"5 rotations/côté",note:"Amplitude active complète"},
+  ]},
+];
+
+// PROGRAMME
+const GAMMES_PREP={
+  n:"🦵 Prépa articulaire genoux",d:"5 min",c:"—",r:"—",
+  note:"Rotations genoux 10x · Squat iso mur 2x20s · Fente basse rotation 8x/côté · Squat sauté léger 2x5 · Knee hug march 10x"
+};
+
+const P={
+  1:{
+    lundi:{icon:"💪",type:"Renforcement Full Body",obj:"Force + Explosivité — prioritaires à froid",exs:[
+      {n:"Tirage arraché (Snatch Pull)",d:"5×3",c:"~65kg (75%)",r:"7",note:"Prioritaire — extension explosive, frais en premier"},
+      {n:"Box Squat",d:"1×3@115kg + 3×3@107kg",c:"107-115kg",r:"6-7",note:"Vitesse de barre max, pas la charge"},
+      {n:"Hack Squat Dead Stop",d:"4×4",c:"72kg (60%)",r:"7",note:"RFD — pause complète en bas, explosion max"},
+      {n:"Dips (Force)",d:"4×3",c:"+27,5kg (68%)",r:"7",note:"Verrouillage — excentrique contrôlé, explosif en montée"},
+      {n:"Tractions (Volume)",d:"4×10",c:"+12kg (35%)",r:"7",note:"Volume dos — négatif lent, tirage explosif"},
+    ]},
+    mardi:{icon:"🧘",type:"Mobilité & Stretching",obj:"Séance dédiée mobilité — qualité d'amplitude uniquement",exs:[]},
+    mercredi:{icon:"⚡",type:"Développement Athlétique",obj:"Explosivité & Qualités Athlétiques — Introduction patterns",exs:[
+      GAMMES_PREP,
+      {n:"Gammes — Montées de genoux (Skipping A)",d:"2×20m",c:"—",r:"—",note:"Genou à hauteur bassin, pied flex, avant-pied — retour marche entre chaque passage"},
+      {n:"Gammes — Talons-fesses (Skipping B)",d:"2×20m",c:"—",r:"—",note:"Contraction ischios, talon ramené à la fesse"},
+      {n:"Gammes — Foulées jambes tendues (Griffé)",d:"2×20m",c:"—",r:"—",note:"Jambes tendues, pied flex, contact sol minimal"},
+      {n:"Gammes — Pas chassés latéraux",d:"2×20m A/R",c:"—",r:"—",note:"Avant-pied, genoux-pieds dans l'axe"},
+      {n:"Gammes — Foulées bondissantes",d:"2×20m",c:"—",r:"—",note:"Saut puissant d'une jambe sur l'autre, amplitude max"},
+      {n:"Gammes — Triple extension (A-skip amplifié)",d:"2×20m",c:"—",r:"—",note:"Extension complète cheville-genou-hanche — transfert direct arraché"},
+      {n:"Gammes — Accélération progressive",d:"2×30m",c:"—",r:"—",note:"Trot vers 80% sur les 10 derniers mètres — Volume total gammes : ~280m"},
+      {n:"Sprints",d:"6×20m",c:"85%",r:"—",note:"Départ debout ou 3 points · Récup 2 min marche complète entre chaque · Volume : 120m"},
+      {n:"Haltéro Léger Explosif (Épaulé susp.)",d:"4×2",c:"~63kg (55%)",r:"—",note:"Vitesse de barre MAX — % fixe sur tout le bloc"},
+      {n:"Sauts Haies ~60cm",d:"4×6",c:"—",r:"—",note:"Contact sol MINIMAL — rebond direct · 24 sauts"},
+    ]},
+    jeudi:{icon:"🎯",type:"Renforcement Full Body (variante)",obj:"Force Haut du Corps + Correction Technique Épaulé",exs:[
+      {n:"Tractions (Force)",d:"5×3",c:"+23,5kg (68%)",r:"8",note:"Prioritaire du jour — charge haute, séries courtes"},
+      {n:"Isométrie Overcoming (tirage)",d:"4×4 sec",c:"Max volontaire",r:"8",note:"Poussée max contre la barre bloquée au rack"},
+      {n:"Tirage Épaulé (Clean Pull)",d:"4×3",c:"~60kg (50%)",r:"6",note:"FOCUS TRAJECTOIRE — barre verticale, proche du corps"},
+      {n:"Front Squat (Squat Clavicule)",d:"3×3",c:"103kg (75%)",r:"7",note:"Stimulus jambes sans dupliquer le lundi"},
+      {n:"Dips (Hypertrophie)",d:"4×6",c:"+20kg (49%)",r:"7",note:"Volume poussée — contrôle négatif"},
+      {n:"SDT Roumain",d:"3×5",c:"~110kg (léger)",r:"5",note:"Maintenance posturale uniquement"},
+    ]},
+    vendredi:{icon:"🔄",type:"Récupération Active",obj:"Repos actif — Prehab + mobilité courte (~30 min)",exs:[]},
+    samedi:{icon:"🏋️",type:"Haltérophilie Spécifique",obj:"Technique & Volume Haltéro",exs:[
+      {n:"Plyo Haies ~60cm (PAP)",d:"3×6",c:"—",r:"—",note:"Avant haltéro — activation neuromusculaire, 18 sauts"},
+      {n:"Arraché Suspension",d:"4×3",c:"56kg (65%)",r:"6-7",note:"Technique et qualité — pas de course à la charge"},
+      {n:"Complexe Épaulé-Jeté",d:"2×(1+3) puis 2×(3+1)",c:"~62kg",r:"6",note:"Même charge tout le complexe — régularité"},
+      {n:"Tractions Hautes (C2B)",d:"3×6",c:"Poids du corps",r:"6",note:"Recherche de hauteur — tirage explosif"},
+      {n:"Dips (léger)",d:"3×5",c:"+10kg",r:"5",note:"Décharge — intention de vitesse"},
+    ]},
+  },
+  2:{
+    lundi:{icon:"💪",type:"Renforcement Full Body",obj:"Accumulation+ — Charges ↑",exs:[
+      {n:"Tirage arraché (Snatch Pull)",d:"5×3",c:"~66kg (77%)",r:"7",note:"Charge +1kg vs S1"},
+      {n:"Box Squat",d:"1×3@119kg + 3×3@110kg",c:"110-119kg",r:"7",note:"Progression légère"},
+      {n:"Hack Squat Dead Stop",d:"4×4",c:"75,5kg (63%)",r:"7-8",note:"Charge +3,5kg vs S1"},
+      {n:"Dips (Force)",d:"4×3",c:"+29kg (72%)",r:"7-8",note:"Charge +1,5kg vs S1"},
+      {n:"Tractions (Volume)",d:"4×10",c:"+14kg (40%)",r:"7",note:"Charge +2kg vs S1"},
+    ]},
+    mardi:{icon:"🧘",type:"Mobilité & Stretching",obj:"Séance dédiée mobilité",exs:[]},
+    mercredi:{icon:"⚡",type:"Développement Athlétique",obj:"Densité haltéro ↑ — Sprints 90%",exs:[
+      GAMMES_PREP,
+      {n:"Gammes — Montées de genoux",d:"2×20m",c:"—",r:"—",note:"Mêmes 7 exercices — ancrer les patterns"},
+      {n:"Gammes — Talons-fesses",d:"2×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Griffé",d:"2×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Pas chassés latéraux",d:"2×20m A/R",c:"—",r:"—",note:""},
+      {n:"Gammes — Foulées bondissantes",d:"2×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Triple extension",d:"2×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Accélération progressive",d:"2×30m",c:"—",r:"—",note:"Volume total gammes : ~280m"},
+      {n:"Sprints 20m",d:"8×20m",c:"90%",r:"—",note:"Récup 2 min 30 marche entre chaque"},
+      {n:"Sprints 30m",d:"2×30m",c:"90%",r:"—",note:"Récup 2 min 30 · Volume total : 220m"},
+      {n:"Haltéro Léger Explosif",d:"5×2",c:"~63kg (55%)",r:"—",note:"Densité ↑ (5 séries vs 4 en S1)"},
+      {n:"Sauts Haies ~60cm",d:"5×6",c:"—",r:"—",note:"30 sauts"},
+    ]},
+    jeudi:{icon:"🎯",type:"Renforcement Full Body (variante)",obj:"Force Haut du Corps — Accumulation+",exs:[
+      {n:"Tractions (Force)",d:"5×3",c:"+25kg (72%)",r:"8",note:"Charge +1,5kg vs S1"},
+      {n:"Isométrie Overcoming",d:"4×5 sec",c:"Max volontaire",r:"8",note:"Durée +1 sec vs S1"},
+      {n:"Tirage Épaulé (Clean Pull)",d:"4×3",c:"~62kg (52%)",r:"6",note:"FOCUS TRAJECTOIRE"},
+      {n:"Front Squat",d:"4×3",c:"105,5kg (77%)",r:"7-8",note:"1 série supplémentaire vs S1"},
+      {n:"Dips (Hypertrophie)",d:"4×6",c:"+22kg (54%)",r:"7-8",note:"Charge +2kg vs S1"},
+      {n:"SDT Roumain",d:"3×5",c:"~110kg (léger)",r:"5",note:"Maintenance posturale"},
+    ]},
+    vendredi:{icon:"🔄",type:"Récupération Active",obj:"Repos actif — Prehab + mobilité courte",exs:[]},
+    samedi:{icon:"🏋️",type:"Haltérophilie Spécifique",obj:"Volume Technique ↑",exs:[
+      {n:"Plyo Haies ~60cm (PAP)",d:"3×6",c:"—",r:"—",note:"18 sauts PAP"},
+      {n:"Arraché Suspension",d:"4×3",c:"58kg (67%)",r:"7",note:"Charge +2kg vs S1"},
+      {n:"Complexe Épaulé-Jeté",d:"2×(1+3) + 2×(3+1)",c:"~64kg",r:"6-7",note:""},
+      {n:"Tractions Hautes (C2B)",d:"4×6",c:"Poids du corps",r:"6-7",note:"1 série supplémentaire"},
+      {n:"Dips (léger)",d:"3×5",c:"+12kg",r:"5",note:""},
+    ]},
+  },
+  3:{
+    lundi:{icon:"💪",type:"Renforcement Full Body",obj:"Intensification — Reps ↓, Charge ↑",exs:[
+      {n:"Tirage arraché (Snatch Pull)",d:"5×2",c:"~69kg (80%)",r:"8",note:"Reps passent à 2 — charge 80%"},
+      {n:"Box Squat",d:"1×2@124kg + 3×2@115kg",c:"115-124kg",r:"7-8",note:"Reps ↓ charge ↑"},
+      {n:"Hack Squat Dead Stop",d:"4×3",c:"80,5kg (67%)",r:"8",note:"Reps ↓ à 3"},
+      {n:"Dips (Force)",d:"4×2-3",c:"+31kg (76%)",r:"8",note:"Zone 2-3 reps — charge haute"},
+      {n:"Tractions (Volume)",d:"3×8",c:"+15,5kg (45%)",r:"7-8",note:"Transition volume vers intensité"},
+    ]},
+    mardi:{icon:"🧘",type:"Mobilité & Stretching",obj:"Séance dédiée mobilité",exs:[]},
+    mercredi:{icon:"⚡",type:"Développement Athlétique",obj:"3 passages exercices clés — Sprints 6×30m",exs:[
+      GAMMES_PREP,
+      {n:"Gammes — Montées de genoux",d:"2×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Talons-fesses",d:"2×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Griffé",d:"3×20m",c:"—",r:"—",note:"3 passages — exercice clé contact sol"},
+      {n:"Gammes — Pas chassés latéraux",d:"2×20m A/R",c:"—",r:"—",note:""},
+      {n:"Gammes — Foulées bondissantes",d:"3×20m",c:"—",r:"—",note:"3 passages — exercice clé extension hanche"},
+      {n:"Gammes — Triple extension",d:"3×20m",c:"—",r:"—",note:"3 passages — transfert direct arraché"},
+      {n:"Gammes — Accélération progressive",d:"2×30m",c:"—",r:"—",note:"Volume total gammes : ~320m"},
+      {n:"Sprints",d:"6×30m",c:"90%",r:"—",note:"Récup 2 min 30 marche · Volume : 180m"},
+      {n:"Haltéro Léger Explosif",d:"5×2",c:"~67kg (57%)",r:"—",note:"% légèrement ↑ à 57%"},
+      {n:"Sauts Haies ~60cm",d:"5×7",c:"—",r:"—",note:"35 sauts"},
+    ]},
+    jeudi:{icon:"🎯",type:"Renforcement Full Body (variante)",obj:"Intensification Haut du Corps",exs:[
+      {n:"Tractions (Force)",d:"5×2-3",c:"+26kg (76%)",r:"8-9",note:"Zone 2-3 reps"},
+      {n:"Isométrie Overcoming",d:"5×5 sec",c:"Max volontaire",r:"8-9",note:"Volume ↑ à 5 séries"},
+      {n:"Tirage Épaulé (Clean Pull)",d:"4×2",c:"~66kg (55%)",r:"6-7",note:"FOCUS TRAJECTOIRE"},
+      {n:"Front Squat",d:"4×2-3",c:"109,5kg (80%)",r:"8",note:"Intensification"},
+      {n:"Dips (Hypertrophie)",d:"3×6",c:"+24kg (59%)",r:"8",note:"Volume ↓ charge ↑"},
+      {n:"SDT Roumain",d:"3×5",c:"~110kg (léger)",r:"5",note:"Maintenance"},
+    ]},
+    vendredi:{icon:"🔄",type:"Récupération Active",obj:"Repos actif — Prehab + mobilité courte",exs:[]},
+    samedi:{icon:"🏋️",type:"Haltérophilie Spécifique",obj:"Qualité Technique — Charges ↑",exs:[
+      {n:"Plyo Haies ~60cm (PAP)",d:"4×6",c:"—",r:"—",note:"24 sauts PAP"},
+      {n:"Arraché Suspension",d:"4×2",c:"60kg (70%)",r:"7-8",note:"Reps ↓ à 2"},
+      {n:"Complexe Épaulé-Jeté",d:"2×(1+3) + 2×(3+1)",c:"~67kg",r:"7",note:""},
+      {n:"Tractions Hautes (C2B)",d:"4×6",c:"+12kg",r:"7",note:""},
+      {n:"Dips (léger)",d:"3×5",c:"+14kg",r:"5",note:""},
+    ]},
+  },
+  4:{
+    lundi:{icon:"💪",type:"Renforcement Full Body",obj:"PIC DU BLOC — Charges maximales",exs:[
+      {n:"Tirage arraché (Snatch Pull)",d:"5×2",c:"~71kg (83%)",r:"8-9",note:"Max du cycle — reste explosif"},
+      {n:"Box Squat",d:"1×2@129kg + 3×2@119kg",c:"119-129kg",r:"8",note:"Pic de charge"},
+      {n:"Hack Squat Dead Stop",d:"3×3",c:"84kg (70%)",r:"8-9",note:"Charge max du cycle"},
+      {n:"Dips (Force)",d:"4×2",c:"+32kg (79%)",r:"9",note:"RPE 9 — proche du max"},
+      {n:"Tractions (Volume)",d:"3×8",c:"+17kg (50%)",r:"8",note:""},
+    ]},
+    mardi:{icon:"🧘",type:"Mobilité & Stretching",obj:"Séance dédiée mobilité",exs:[]},
+    mercredi:{icon:"⚡",type:"Développement Athlétique",obj:"PIC ATHLÉTIQUE — 3 passages tous exercices — Sprints 92-95%",exs:[
+      GAMMES_PREP,
+      {n:"Gammes — Montées de genoux",d:"3×20m",c:"—",r:"—",note:"3 passages sur TOUS les exercices en S4"},
+      {n:"Gammes — Talons-fesses",d:"3×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Griffé",d:"3×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Pas chassés latéraux",d:"3×20m A/R",c:"—",r:"—",note:""},
+      {n:"Gammes — Foulées bondissantes",d:"3×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Triple extension",d:"3×20m",c:"—",r:"—",note:""},
+      {n:"Gammes — Accélération progressive",d:"2×30m",c:"—",r:"—",note:"Volume total gammes : ~440m — PIC du cycle"},
+      {n:"Sprints",d:"8×30m",c:"92-95%",r:"—",note:"Intensité MAX du cycle · Récup 3 min marche · Volume : 240m"},
+      {n:"Haltéro Léger Explosif",d:"6×2",c:"~67kg (57%)",r:"—",note:"DENSITÉ MAX — 6 séries"},
+      {n:"Sauts Haies ~60cm",d:"5×8",c:"—",r:"—",note:"40 sauts — PIC du cycle"},
+    ]},
+    jeudi:{icon:"🎯",type:"Renforcement Full Body (variante)",obj:"PIC Haut du Corps",exs:[
+      {n:"Tractions (Force)",d:"5×2",c:"+27,5kg (80%)",r:"9",note:"RPE 9 — max du cycle"},
+      {n:"Isométrie Overcoming",d:"4×5 sec",c:"Max volontaire",r:"9",note:"Intensité maximale"},
+      {n:"Tirage Épaulé (Clean Pull)",d:"4×2",c:"~66kg (55%)",r:"6-7",note:"Stable — focus trajectoire"},
+      {n:"Front Squat",d:"4×2",c:"113,5kg (83%)",r:"8-9",note:"Max du cycle"},
+      {n:"Dips (Hypertrophie)",d:"3×6",c:"+26kg (64%)",r:"8",note:"Charge max"},
+      {n:"SDT Roumain",d:"2×5",c:"~110kg (léger)",r:"5",note:"Volume ↓"},
+    ]},
+    vendredi:{icon:"🔄",type:"Récupération Active",obj:"Repos actif — Prehab + mobilité courte",exs:[]},
+    samedi:{icon:"🏋️",type:"Haltérophilie Spécifique",obj:"PIC TECHNIQUE",exs:[
+      {n:"Plyo Haies ~60cm (PAP)",d:"4×7",c:"—",r:"—",note:"Volume max samedi — 28 sauts"},
+      {n:"Arraché Suspension",d:"3×2",c:"63kg (73%)",r:"8",note:"Charge max samedi"},
+      {n:"Complexe Épaulé-Jeté",d:"2×(1+3) + 2×(3+1)",c:"~70kg",r:"7-8",note:"Charge max complexe"},
+      {n:"Tractions Hautes (C2B)",d:"3×5",c:"+14kg",r:"7-8",note:""},
+      {n:"Dips (léger)",d:"2×5",c:"+14kg",r:"5-6",note:""},
+    ]},
+  },
+  5:{
+    lundi:{icon:"💤",type:"Décharge",obj:"Dissiper la fatigue — Volume et intensité réduits",exs:[
+      {n:"Tirage arraché (Snatch Pull)",d:"3×2",c:"~56kg (65%)",r:"6",note:"Maintien du pattern"},
+      {n:"Box Squat",d:"3×2@99kg",c:"99kg (60%)",r:"5-6",note:"Charge réduite"},
+      {n:"Hack Squat Dead Stop",d:"2×3",c:"60kg (50%)",r:"5",note:"50% uniquement"},
+      {n:"Dips",d:"2×3",c:"+9kg",r:"5",note:"Léger"},
+      {n:"Tractions",d:"2×6",c:"Poids du corps",r:"5",note:"PdC uniquement"},
+    ]},
+    mardi:{icon:"🧘",type:"Mobilité & Stretching",obj:"Séance mobilité — décharge",exs:[]},
+    mercredi:{icon:"💤",type:"Décharge Athlétique",obj:"Maintien patterns — Volume minimal",exs:[
+      GAMMES_PREP,
+      {n:"Gammes — Montées de genoux",d:"1×15m",c:"—",r:"—",note:"1 seul passage, distance réduite"},
+      {n:"Gammes — Talons-fesses",d:"1×15m",c:"—",r:"—",note:""},
+      {n:"Gammes — Foulées bondissantes",d:"1×15m",c:"—",r:"—",note:""},
+      {n:"Gammes — Triple extension",d:"1×15m",c:"—",r:"—",note:""},
+      {n:"Gammes — Accélération progressive",d:"1×20m",c:"—",r:"—",note:"Volume total gammes : ~80m — décharge"},
+      {n:"Sprints",d:"4×20m",c:"80%",r:"—",note:"Retour aux 20m · Récup 2 min · Volume : 80m"},
+      {n:"Haltéro Léger Explosif",d:"2×2",c:"~58kg (50%)",r:"—",note:"Minimum vital"},
+      {n:"Sauts Haies ~60cm",d:"3×5",c:"—",r:"—",note:"15 sauts — maintien pattern"},
+    ]},
+    jeudi:{icon:"💤",type:"Décharge Haut du Corps",obj:"Récupération active",exs:[
+      {n:"Tractions",d:"3×3",c:"+8kg",r:"6",note:"Très léger"},
+      {n:"Isométrie Overcoming",d:"2×3 sec",c:"Sous-max (80%)",r:"6",note:"Durée réduite"},
+      {n:"Tirage Épaulé (Clean Pull)",d:"3×2",c:"~54kg (45%)",r:"5",note:"Pattern uniquement"},
+      {n:"Front Squat",d:"3×2",c:"89kg (65%)",r:"5-6",note:"Décharge"},
+      {n:"Dips",d:"2×5",c:"+9kg",r:"5",note:"Très léger"},
+    ]},
+    vendredi:{icon:"🔄",type:"Récupération Active",obj:"Repos actif — Prehab + mobilité courte",exs:[]},
+    samedi:{icon:"💤",type:"Décharge Haltéro",obj:"Récupération — Préparer le test S6",exs:[
+      {n:"Plyo Haies ~60cm",d:"2×5",c:"—",r:"—",note:"10 sauts — maintien pattern"},
+      {n:"Arraché Suspension",d:"3×2",c:"52kg (60%)",r:"5-6",note:"Technique uniquement"},
+      {n:"Épaulé-Jeté Technique",d:"3×2",c:"~63kg (55%)",r:"5",note:"Simple (pas de complexe)"},
+      {n:"Tractions Hautes (C2B)",d:"2×5",c:"Poids du corps",r:"5",note:"PdC uniquement"},
+    ]},
+  },
+  6:{
+    lundi:{icon:"🔥",type:"Activation Légère",obj:"Activation pré-test — Léger, frais, qualité maximale",exs:[
+      {n:"Tirage arraché (Snatch Pull)",d:"3×2",c:"60%",r:"5",note:"Activation uniquement"},
+      {n:"Box Squat",d:"2×2",c:"55%",r:"5",note:"Activation jambes"},
+      {n:"Tractions",d:"2×5",c:"Léger",r:"5",note:"Activation dos"},
+    ]},
+    mardi:{icon:"🧘",type:"Mobilité légère",obj:"Mobilité douce pré-test — pas de fatigue",exs:[]},
+    mercredi:{icon:"🏆",type:"TEST — Squat + Tirage Arraché",obj:"JOUR DE TEST — Squat 1RM + Tirage Arraché Max",exs:[
+      {n:"Échauffement progressif",d:"40→50→60→70→80→90%",c:"Progressif",r:"—",note:"Montée soigneuse"},
+      {n:"🏆 SQUAT — Test 1RM",d:"Paliers 2-5kg",c:"Objectif 172-178kg",r:"10",note:"RECORD CIBLE : +7 à +13kg"},
+      {n:"🏆 Tirage Arraché — Test Max",d:"1-2 reps",c:"Max volontaire",r:"10",note:"Évaluer progrès puissance de tirage"},
+    ]},
+    jeudi:{icon:"💤",type:"Repos",obj:"Repos complet avant le test samedi",exs:[]},
+    vendredi:{icon:"🔄",type:"Activation douce",obj:"Activation légère pré-test samedi",exs:[]},
+    samedi:{icon:"🏆",type:"TEST — Arraché + Épaulé-Jeté",obj:"JOUR DE TEST — Records personnels",exs:[
+      {n:"Plyo Haies ~60cm (activation)",d:"2×4",c:"—",r:"—",note:"Activation PAP pré-test — 8 sauts"},
+      {n:"Échauffement spécifique",d:"Technique + paliers progressifs",c:"Progressif",r:"—",note:"Préparation neurale"},
+      {n:"🏆 ARRACHÉ — Test Max",d:"Paliers 1-2kg",c:"Objectif 90-92kg",r:"10",note:"RECORD CIBLE : +4 à +6kg"},
+      {n:"🏆 ÉPAULÉ-JETÉ — Test Max",d:"Paliers 2-5kg",c:"Objectif 119-122kg",r:"10",note:"RECORD CIBLE : +4 à +7kg"},
+    ]},
+  }
+};
+
+const JOURS=["lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+const JL={lundi:"LUN",mardi:"MAR",mercredi:"MER",jeudi:"JEU",vendredi:"VEN",samedi:"SAM"};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const S={sem:1,jour:"lundi",tab:"programme",logs:{},notes:{}};
+
+function lk(s,j,i){return s+"_"+j+"_"+i}
+function gl(i){return S.logs[lk(S.sem,S.jour,i)]||{}}
+
+function save(){
+  try{
+    localStorage.setItem("wl2_logs",JSON.stringify(S.logs));
+    localStorage.setItem("wl2_notes",JSON.stringify(S.notes));
+  }catch(e){}
+}
+function load(){
+  try{
+    const l=localStorage.getItem("wl2_logs");
+    const n=localStorage.getItem("wl2_notes");
+    if(l)S.logs=JSON.parse(l);
+    if(n)S.notes=JSON.parse(n);
+  }catch(e){}
+}
+
+function esc(s){
+  return String(s||"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+function rpeBadge(r){
+  if(!r||r==="—")return"";
+  const n=parseFloat(r);
+  const cl=n>=9?"b-r4":n>=8?"b-r3":n>=7?"b-r2":"b-r1";
+  return'<span class="b '+cl+'">RPE '+esc(r)+'</span>';
+}
+
+function si(){return SW[S.sem-1]}
+
+// ─── RENDER HEADER ────────────────────────────────────────────────────────────
+function renderHdr(){
+  const w=si();
+  const sDay=P[S.sem]&&P[S.sem][S.jour];
+  const exs=(sDay&&sDay.exs)||[];
+  const done=exs.filter((_,i)=>gl(i).status==="fait").length;
+  const pct=exs.length?Math.round(done/exs.length*100):0;
+
+  let h='<div class="hdr-top"><div><div class="hdr-sub">Programme 6 Semaines</div><div class="hdr-name">Force & Explosivité</div></div>';
+  h+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">';
+  h+='<div class="wbadge" style="background:'+w.c+'18;border-color:'+w.c+'55">';
+  h+='<div class="wn" style="color:'+w.c+'">S'+w.n+'</div>';
+  h+='<div class="wl" style="color:'+w.c+'">'+w.l+'</div></div></div></div>';
+
+  // Nav tabs
+  h+='<div class="nav-row">';
+  ["programme","mobilite","historique"].forEach(function(t){
+    const active=S.tab===t;
+    const label=t==="programme"?"Programme":t==="mobilite"?"Mobilité":"Historique";
+    h+='<button class="ntab" style="background:'+(active?w.c:"#1A1A1A")+';color:'+(active?"#000":"#555")+'" onclick="setTab(\''+t+'\')">' +label+'</button>';
+  });
+  h+='</div>';
+
+  // Semaines (seulement en programme)
+  if(S.tab==="programme"){
+    h+='<div class="wtabs">';
+    SW.forEach(function(sw){
+      const active=S.sem===sw.n;
+      h+='<button class="wtab" style="background:'+(active?sw.c:"#1A1A1A")+';color:'+(active?"#000":"#555")+'" onclick="setSem('+sw.n+')">S'+sw.n+'</button>';
+    });
+    h+='</div>';
+    if(exs.length>0){
+      h+='<div class="prog"><div class="prog-row"><span style="letter-spacing:1px">PROGRESSION</span>';
+      h+='<span style="color:'+(pct===100?'#10B981':w.c)+';font-weight:700">'+done+'/'+exs.length+' · '+pct+'%</span></div>';
+      h+='<div class="prog-track"><div class="prog-fill" style="width:'+pct+'%;background:'+(pct===100?'#10B981':w.c)+'"></div></div></div>';
+    }
+  }
+
+  document.getElementById("hdr").innerHTML=h;
+}
+
+// ─── RENDER DAY TABS ──────────────────────────────────────────────────────────
+function renderDayTabs(){
+  if(S.tab!=="programme"){
+    document.getElementById("dtabs").innerHTML="";
+    return;
+  }
+  const w=si();
+  let h="";
+  JOURS.forEach(function(j){
+    const exs=(P[S.sem]&&P[S.sem][j]&&P[S.sem][j].exs)||[];
+    const done=exs.filter(function(_,i){return S.logs[lk(S.sem,j,i)]&&S.logs[lk(S.sem,j,i)].status==="fait";}).length;
+    const active=j===S.jour;
+    h+='<button class="dtab" style="border-bottom-color:'+(active?w.c:"transparent")+'" onclick="setJour(\''+j+'\')">';
+    h+='<div class="dl" style="color:'+(active?w.c:"#2A2A2A")+'">'+JL[j]+'</div>';
+    if(exs.length>0){
+      h+='<div class="dc" style="color:'+(done===exs.length&&exs.length>0?"#10B981":"#222")+'">'+done+"/"+exs.length+'</div>';
+    }else{
+      h+='<div class="dc">—</div>';
+    }
+    h+='</button>';
+  });
+  document.getElementById("dtabs").innerHTML=h;
+}
+
+// ─── RENDER SCROLL CONTENT ────────────────────────────────────────────────────
+function renderScroll(){
+  const w=si();
+  let h="";
+
+  if(S.tab==="programme"){
+    h+=renderProgramme(w);
+  }else if(S.tab==="mobilite"){
+    h+=renderMobilite();
+  }else{
+    h+=renderHistorique(w);
+  }
+
+  document.getElementById("scroll").innerHTML=h;
+}
+
+function renderProgramme(w){
+  const sDay=P[S.sem]&&P[S.sem][S.jour];
+  if(!sDay) return "";
+  const exs=sDay.exs||[];
+  let h="";
+
+  // ÉCHAUFFEMENT
+  const specMod=ECHAUFF[S.jour]||[];
+  h+='<div class="card" style="background:#0F1A14;border-color:#10B98133">';
+  h+='<div class="coll-hdr" onclick="toggleColl(\'echauff\')">';
+  h+='<div class="coll-left"><span class="coll-icon">⚡</span>';
+  h+='<div><div class="coll-title" style="color:#10B981">Échauffement — ~10 min</div>';
+  h+='<div class="coll-sub">Commun (7 min) + Module '+S.jour+' (3 min)</div></div></div>';
+  h+='<div class="coll-right"><span class="coll-pill" style="background:#10B98115;color:#10B981">Avant séance</span>';
+  h+='<span class="chev" id="chev-echauff">▼</span></div></div>';
+  h+='<div class="coll-body" id="body-echauff">';
+  h+='<div style="font-size:9px;letter-spacing:1.5px;color:#10B981;text-transform:uppercase;margin-bottom:8px">Bloc Commun — 7 min</div>';
+  ECHAUFF.commun.forEach(function(e){
+    h+='<div class="row"><div class="row-top"><span class="row-name">'+esc(e.n)+'</span><span class="row-detail" style="color:#10B981">'+esc(e.d)+'</span></div>';
+    if(e.note)h+='<div class="row-note">'+esc(e.note)+'</div>';
+    h+='</div>';
+  });
+  if(specMod.length>0){
+    h+='<div style="font-size:9px;letter-spacing:1.5px;color:#10B981;text-transform:uppercase;margin:12px 0 8px;padding-top:8px;border-top:1px solid #1E3A28">Module Spécifique — 3 min</div>';
+    specMod.forEach(function(e){
+      h+='<div class="row"><div class="row-top"><span class="row-name">'+esc(e.n)+'</span><span class="row-detail" style="color:#10B981">'+esc(e.d)+'</span></div>';
+      if(e.note)h+='<div class="row-note">'+esc(e.note)+'</div>';
+      h+='</div>';
+    });
+  }
+  h+='</div></div>';
+
+  // SESSION HEADER
+  h+='<div class="sess-hdr" style="border-color:'+w.c+'22">';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">';
+  h+='<span style="font-size:22px">'+sDay.icon+'</span>';
+  h+='<div class="sess-eye" style="color:'+w.c+'">'+S.jour.toUpperCase()+' · '+esc(sDay.type)+'</div></div>';
+  h+='<div class="sess-obj">'+esc(sDay.obj)+'</div>';
+  h+='<div class="sess-meta"><span>RPE cible '+w.r+'</span>';
+  if(exs.length>0)h+='<span>'+exs.length+' exercices</span>';
+  h+='</div></div>';
+
+  // CONTENU
+  if(S.jour==="mardi"){
+    h+='<div class="card" style="border-color:#8B5CF633;padding:14px 16px">';
+    h+='<div style="font-size:12px;color:#8B5CF6;font-weight:700;margin-bottom:12px">🧘 Programme — 45 min</div>';
+    MOBILITE.forEach(function(b){
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1A1A1A">';
+      h+='<span style="font-size:13px;color:#DDD">'+b.titre+'</span>';
+      h+='<span style="font-size:11px;color:#8B5CF6;font-weight:700;background:#8B5CF611;border-radius:4px;padding:2px 8px">'+b.duree+'</span></div>';
+    });
+    h+='<div style="font-size:11px;color:#555;margin-top:10px">Voir onglet <strong style="color:#8B5CF6">Mobilité</strong> pour le détail complet</div>';
+    h+='</div>';
+  }else if(S.jour==="vendredi"){
+    h+='<div class="card" style="border-color:#6366F133;padding:14px 16px">';
+    h+='<div style="font-size:12px;color:#6366F1;font-weight:700;margin-bottom:12px">🔄 Récupération Active — ~30 min</div>';
+    [{t:"10 min",d:"Protocole tendon rotulien (voir Prehab ci-dessous)"},{t:"8 min",d:"Protocole coiffe des rotateurs (voir Prehab ci-dessous)"},{t:"12 min",d:"Chevilles + hanches (version courte séance mardi)"}].forEach(function(i){
+      h+='<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #1A1A1A">';
+      h+='<span style="font-size:11px;color:#D4A843;font-weight:700;flex-shrink:0;width:50px">'+i.t+'</span>';
+      h+='<span style="font-size:12px;color:#888">'+i.d+'</span></div>';
+    });
+    h+='</div>';
+  }else if(exs.length===0){
+    h+='<div class="repos">💤 Repos — récupération active conseillée</div>';
+  }else{
+    exs.forEach(function(ex,i){
+      const log=gl(i);
+      const isTest=ex.n.indexOf("🏆")!==-1;
+      let cc="ex-card";
+      if(log.status==="fait")cc+=" s-done";
+      else if(log.status==="partiel")cc+=" s-partial";
+      else if(log.status==="non-fait")cc+=" s-missed";
+      else if(isTest)cc+=" s-test";
+
+      let sp='<span class="sp-empty">— À faire</span>';
+      if(log.status==="fait")sp='<span class="sp sp-done">✓ Fait</span>';
+      else if(log.status==="partiel")sp='<span class="sp sp-partial">◐ Partiel</span>';
+      else if(log.status==="non-fait")sp='<span class="sp sp-missed">✗ Non fait</span>';
+
+      const bodyId="exb-"+i;
+      const chevId="exc-"+i;
+      const isOpen=S.logs["_open_"+lk(S.sem,S.jour,i)];
+
+      h+='<div class="'+cc+'">';
+      h+='<div class="ex-hdr" onclick="toggleEx('+i+')">';
+      h+='<div class="ex-main">';
+      h+='<div class="ex-name" style="color:'+(isTest?w.c:"var(--tx)")+'">'+esc(ex.n)+'</div>';
+      h+='<div class="badges"><span class="b b-det">'+esc(ex.d)+'</span><span class="b b-chg">'+esc(ex.c)+'</span>';
+      h+=rpeBadge(ex.r);
+      if(log.chargeRealisee)h+='<span class="b b-done">✓ '+esc(log.chargeRealisee)+'</span>';
+      h+='</div></div>';
+      h+='<div class="ex-right">'+sp+'<span class="chev" id="'+chevId+'">'+(isOpen?"▲":"▼")+'</span></div>';
+      h+='</div>';
+      h+='<div class="ex-body'+(isOpen?" open":"")+'" id="'+bodyId+'">';
+      if(ex.note)h+='<div class="coach-note" style="border-color:'+w.c+'55">'+esc(ex.note)+'</div>';
+      h+='<div class="inp-grid">';
+      h+='<div class="inp-g"><label>Charge réalisée</label>';
+      h+='<input type="text" placeholder="ex: 68kg" value="'+esc(log.chargeRealisee||"")+'" onchange="updateField('+i+',\'chargeRealisee\',this.value)"></div>';
+      h+='<div class="inp-g"><label>RPE ressenti</label>';
+      h+='<input type="number" min="1" max="10" placeholder="1-10" value="'+esc(log.rpeRessenti||"")+'" onchange="updateField('+i+',\'rpeRessenti\',this.value)"></div>';
+      h+='</div>';
+      h+='<div class="inp-g inp-full"><label>Ressenti / Commentaire</label>';
+      h+='<textarea rows="2" placeholder="Sensations, ajustements..." onchange="updateField('+i+',\'commentaire\',this.value)">'+esc(log.commentaire||"")+'</textarea></div>';
+      h+='<div class="sbts">';
+      h+='<button class="sbt'+(log.status==="fait"?" ad":"")+'" onclick="setStatus('+i+',\'fait\')">✓ Fait</button>';
+      h+='<button class="sbt'+(log.status==="partiel"?" ap":"")+'" onclick="setStatus('+i+',\'partiel\')">◐ Partiel</button>';
+      h+='<button class="sbt'+(log.status==="non-fait"?" am":"")+'" onclick="setStatus('+i+',\'non-fait\')">✗ Non fait</button>';
+      h+='</div></div></div>';
+    });
+  }
+
+  // PREHAB (après séance)
+  if(PREHAB_JOURS.indexOf(S.jour)!==-1){
+    const pr=PREHAB_R.find(function(p){return p.s===S.sem;})||PREHAB_R[0];
+    h+='<div class="card" style="background:#1A0F0F;border-color:#EF444433;margin-top:6px">';
+    h+='<div class="coll-hdr" onclick="toggleColl(\'prehab\')">';
+    h+='<div class="coll-left"><span class="coll-icon">🛡️</span>';
+    h+='<div><div class="coll-title" style="color:#EF4444">Prehab — Après séance</div>';
+    h+='<div class="coll-sub">Tendon rotulien + Coiffe — ~18 min</div></div></div>';
+    h+='<div class="coll-right"><span class="coll-pill" style="background:#EF444415;color:#EF4444">S'+S.sem+'</span>';
+    h+='<span class="chev" id="chev-prehab">▼</span></div></div>';
+    h+='<div class="coll-body" id="body-prehab">';
+    h+='<div style="font-size:9px;letter-spacing:1.5px;color:#EF4444;text-transform:uppercase;margin-bottom:8px">🦵 Tendon Rotulien — Protocole Stanish</div>';
+    h+='<div style="background:#0A0A0A;border-radius:8px;padding:12px;border:1px solid #EF444422;margin-bottom:12px">';
+    h+='<div style="font-size:13px;font-weight:700;margin-bottom:6px">'+esc(pr.ex)+'</div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    h+='<span style="font-size:12px;color:#EF4444;background:#EF444411;border-radius:4px;padding:3px 8px;font-weight:700">'+esc(pr.fmt)+'</span>';
+    h+='<span style="font-size:12px;color:#888;background:#1A1A1A;border-radius:4px;padding:3px 8px">'+esc(pr.ch)+'</span></div>';
+    h+='<div style="font-size:11px;color:#666;margin-top:8px;border-left:2px solid #EF444455;padding-left:8px;line-height:1.5">'+esc(pr.note)+'</div></div>';
+    h+='<div style="font-size:9px;letter-spacing:1.5px;color:#EF4444;text-transform:uppercase;margin-bottom:8px">💪 Coiffe des Rotateurs</div>';
+    PREHAB_C.forEach(function(e){
+      h+='<div class="row"><div class="row-top"><span class="row-name">'+esc(e.n)+'</span><span class="row-detail" style="color:#EF4444">'+esc(e.d)+'</span></div>';
+      h+='<div class="row-note">'+esc(e.note)+'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  // NOTE SESSION
+  if(exs.length>0&&["mardi","vendredi"].indexOf(S.jour)===-1){
+    const noteVal=S.notes[S.sem+"_"+S.jour]||"";
+    h+='<div class="sess-note"><label>📝 Note de séance</label>';
+    h+='<textarea rows="3" placeholder="Ressenti général, fatigue, points à corriger..." onchange="setNote(this.value)">'+esc(noteVal)+'</textarea></div>';
+  }
+
+  // OBJECTIFS S1 LUNDI
+  if(S.sem===1&&S.jour==="lundi"){
+    h+='<div class="obj-card"><div class="obj-title">Objectifs du Cycle</div><div class="obj-grid">';
+    [{l:"Arraché",a:"86kg",t:"90-92kg"},{l:"Épaulé-Jeté",a:"115kg",t:"119-122kg"},{l:"Squat",a:"165kg",t:"172-178kg"},{l:"Ratio Arr./Squat",a:"52%",t:">54%"}].forEach(function(o){
+      h+='<div class="obj-item"><div class="obj-l">'+o.l+'</div><div class="obj-a">'+o.a+'</div><div class="obj-t">→ '+o.t+'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  return h;
+}
+
+function renderMobilite(){
+  let h='<div style="background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid #8B5CF622;margin-bottom:14px">';
+  h+='<div style="font-size:10px;letter-spacing:1.5px;color:#8B5CF6;text-transform:uppercase;font-weight:700;margin-bottom:4px">🧘 MARDI — Mobilité & Stretching</div>';
+  h+='<div style="font-size:13px;color:#888">~45 min · Pas de charge · Qualité d\'amplitude uniquement</div></div>';
+
+  MOBILITE.forEach(function(b,bi){
+    const isOpen=document.getElementById("mob-body-"+bi)&&document.getElementById("mob-body-"+bi).classList.contains("open");
+    h+='<div class="mob-bloc">';
+    h+='<div class="coll-hdr" onclick="toggleMob('+bi+')" style="background:var(--bg2)">';
+    h+='<div class="coll-left"><div><div class="coll-title" style="color:'+b.c+'">'+b.titre+'</div></div></div>';
+    h+='<div class="coll-right"><span class="coll-pill" style="background:'+b.c+'15;color:'+b.c+'">'+b.duree+'</span>';
+    h+='<span class="chev" id="mob-chev-'+bi+'">'+(isOpen?"▲":"▼")+'</span></div></div>';
+    h+='<div class="coll-body'+(isOpen?" open":"")+'" id="mob-body-'+bi+'" style="background:#0D0D0D">';
+    b.exs.forEach(function(e){
+      h+='<div class="row"><div class="row-top"><span class="row-name">'+esc(e.n)+'</span><span class="row-detail" style="color:'+b.c+'">'+esc(e.d)+'</span></div>';
+      if(e.note)h+='<div class="row-note">'+esc(e.note)+'</div>';
+      h+='</div>';
+    });
+    h+='</div></div>';
+  });
+  return h;
+}
+
+function renderHistorique(w){
+  let h='';
+  const sessions=[];
+  for(let s=1;s<=6;s++){
+    JOURS.forEach(function(j){
+      const exs=(P[s]&&P[s][j]&&P[s][j].exs)||[];
+      const hasData=exs.some(function(_,i){return S.logs[lk(s,j,i)]&&S.logs[lk(s,j,i)].status;});
+      if(hasData){
+        const done=exs.filter(function(_,i){return S.logs[lk(s,j,i)]&&S.logs[lk(s,j,i)].status==="fait";}).length;
+        sessions.push({s:s,j:j,exs:exs,done:done});
+      }
+    });
+  }
+  if(sessions.length===0){
+    return '<div class="empty">Aucune séance enregistrée<br><span style="font-size:11px;color:#2A2A2A">Commence à remplir ton programme !</span></div>';
+  }
+  sessions.forEach(function(sess){
+    const sw=SW[sess.s-1];
+    const prog=P[sess.s]&&P[sess.s][sess.j];
+    const note=S.notes[sess.s+"_"+sess.j];
+    const pct=Math.round(sess.done/sess.exs.length*100);
+    const charges=sess.exs.map(function(ex,i){
+      const l=S.logs[lk(sess.s,sess.j,i)];
+      return(l&&l.chargeRealisee)?{nom:ex.n,c:l.chargeRealisee}:null;
+    }).filter(Boolean).slice(0,4);
+
+    h+='<div class="hist-card" style="border-color:'+sw.c+'22" onclick="goTo('+sess.s+',\''+sess.j+'\')">';
+    h+='<div class="hist-top"><div>';
+    h+='<div class="hist-lbl" style="color:'+sw.c+'">S'+sess.s+' — '+JL[sess.j]+'</div>';
+    h+='<div class="hist-type">'+(prog?prog.icon:"")+" "+(prog?esc(prog.type):"")+'</div></div>';
+    h+='<div><div class="hist-pct" style="color:'+(pct===100?"#10B981":sw.c)+'">'+pct+'%</div>';
+    h+='<div class="hist-sub">'+sess.done+'/'+sess.exs.length+'</div></div></div>';
+    if(note)h+='<div class="hist-note" style="border-color:'+sw.c+'44">'+esc(note.slice(0,120))+(note.length>120?"...":"")+'</div>';
+    if(charges.length>0){
+      h+='<div class="hist-tags">';
+      charges.forEach(function(c){
+        h+='<span class="hist-tag">'+esc(c.nom.split(" ").slice(0,2).join(" "))+': '+esc(c.c)+'</span>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  return h;
+}
+
+// ─── RENDER COMPLET ───────────────────────────────────────────────────────────
+function render(){
+  renderHdr();
+  renderDayTabs();
+  renderScroll();
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function setSem(s){S.sem=s;S.jour="lundi";render()}
+function setJour(j){S.jour=j;render()}
+function setTab(t){S.tab=t;render()}
+function goTo(s,j){S.sem=s;S.jour=j;S.tab="programme";render()}
+
+// Toggles SANS re-render — manipulation directe du DOM
+function toggleColl(which){
+  const bodyId="body-"+which;
+  const chevId="chev-"+which;
+  const body=document.getElementById(bodyId);
+  const chev=document.getElementById(chevId);
+  if(!body)return;
+  const open=body.classList.toggle("open");
+  if(chev)chev.textContent=open?"▲":"▼";
+}
+
+function toggleEx(i){
+  const bodyId="exb-"+i;
+  const chevId="exc-"+i;
+  const body=document.getElementById(bodyId);
+  const chev=document.getElementById(chevId);
+  if(!body)return;
+  const open=body.classList.toggle("open");
+  if(chev)chev.textContent=open?"▲":"▼";
+  // Sauvegarder l'état ouvert/fermé
+  S.logs["_open_"+lk(S.sem,S.jour,i)]=open;
+}
+
+function toggleMob(i){
+  const bodyId="mob-body-"+i;
+  const chevId="mob-chev-"+i;
+  const body=document.getElementById(bodyId);
+  const chev=document.getElementById(chevId);
+  if(!body)return;
+  const open=body.classList.toggle("open");
+  if(chev)chev.textContent=open?"▲":"▼";
+}
+
+// Inputs — onchange (pas oninput) = se déclenche uniquement quand on quitte le champ
+function updateField(i,field,val){
+  const k=lk(S.sem,S.jour,i);
+  S.logs[k]=S.logs[k]||{};
+  S.logs[k][field]=val;
+  save();
+  // Mettre à jour uniquement le badge charge visible sans re-render
+  if(field==="chargeRealisee"){
+    const bdone=document.querySelector('#exb-'+i+' .b-done');
+    const badges=document.querySelector('#exb-'+i);
+    // Juste rafraîchir les badges — mais c'est compliqué sans re-render
+    // On laisse la valeur s'afficher au prochain render naturel (changement de jour/semaine)
+  }
+}
+
+function setStatus(i,status){
+  const k=lk(S.sem,S.jour,i);
+  S.logs[k]=S.logs[k]||{};
+  if(S.logs[k].status===status)S.logs[k].status=null;
+  else S.logs[k].status=status;
+  save();
+  // Re-render uniquement la carte ex pour éviter scroll reset
+  renderHdr(); // update progress bar
+  renderDayTabs(); // update day counts
+  // Reconstruire uniquement la carte modifiée
+  const sDay=P[S.sem]&&P[S.sem][S.jour];
+  const exs=(sDay&&sDay.exs)||[];
+  const ex=exs[i];
+  if(!ex)return;
+  const log=gl(i);
+  const w=si();
+  const card=document.querySelector('.scroll .ex-card:nth-of-type('+(i+1)+')');
+  // Mettre à jour la classe de la card
+  const allCards=document.querySelectorAll('.scroll .ex-card');
+  const targetCard=allCards[i];
+  if(targetCard){
+    targetCard.className="ex-card";
+    if(log.status==="fait")targetCard.classList.add("s-done");
+    else if(log.status==="partiel")targetCard.classList.add("s-partial");
+    else if(log.status==="non-fait")targetCard.classList.add("s-missed");
+    // Update status pill
+    const spEl=targetCard.querySelector('.sp,.sp-empty');
+    if(spEl){
+      if(log.status==="fait"){spEl.className="sp sp-done";spEl.textContent="✓ Fait";}
+      else if(log.status==="partiel"){spEl.className="sp sp-partial";spEl.textContent="◐ Partiel";}
+      else if(log.status==="non-fait"){spEl.className="sp sp-missed";spEl.textContent="✗ Non fait";}
+      else{spEl.className="sp-empty";spEl.textContent="— À faire";}
+    }
+    // Update status buttons
+    const sbts=targetCard.querySelectorAll('.sbt');
+    sbts.forEach(function(btn){
+      btn.classList.remove("ad","ap","am");
+      if(btn.textContent.indexOf("Fait")!==-1&&log.status==="fait")btn.classList.add("ad");
+      else if(btn.textContent.indexOf("Partiel")!==-1&&log.status==="partiel")btn.classList.add("ap");
+      else if(btn.textContent.indexOf("Non")!==-1&&log.status==="non-fait")btn.classList.add("am");
+    });
+  }
+}
+
+function setNote(val){
+  S.notes[S.sem+"_"+S.jour]=val;
+  save();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+load();
+render();
+</script>
+</body>
+</html>
